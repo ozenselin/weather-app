@@ -3,11 +3,367 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="">
-    <title>Document</title>
+    <title>Forecast Now - Weather Application</title>
     <link rel="stylesheet" href="./style.css">
 </head>
-<body>
+<body class="starry-night">
+    <!-- Header -->
+    <header class="header">
+        <!-- Brand -->
+        <div class="header__brand">
+            <div class="header__brand__logo">
+                <svg class="icon header__brand__logo__icon" xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="currentColor">
+                    <path d="M260-160q-92 0-156-64T40-380q0-78 48.5-137.5T210-594q25-90 99-148t171-58q119 0 199.5 82.5T760-520q75 8 117.5 62T920-341q0 75-52.5 128T740-160H260Zm0-80h480q42 0 71-29t29-71q0-42-29-71t-71-29h-60v-80q0-83-58.5-141.5T480-720q-63 0-112 34.5T296-597q78 13 131 73.5T480-380h-80q0-58-41-99t-99-41q-58 0-99 41t-41 99q0 58 41 99t99 41Z"/>
+                </svg>
+            </div>
+            <span class="header__brand__name">forecast now</span>
+        </div>
+
+        <!-- Controls -->
+        <div class="header__controls">
+            <button class="btn header__controls__btn--add glass-background">
+                <div class="header__controls__btn--add__icon-wrapper">
+                    <svg  class="icon header__controls__btn--add__icon" xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="currentColor"><path d="M440-400h80v-120h120v-80H520v-120h-80v120H320v80h120v120Zm40 214q122-112 181-203.5T720-552q0-109-69.5-178.5T480-800q-101 0-170.5 69.5T240-552q0 71 59 162.5T480-186Zm0 106Q319-217 239.5-334.5T160-552q0-150 96.5-239T480-880q127 0 223.5 89T800-552q0 100-79.5 217.5T480-80Zm0-480Z"/></svg>
+                </div>
+                <span class="header__controls__btn--add__text">Add</span>
+            </button>
+            <form id="search-form" class="header__controls__search-form glass-background" role="search">
+                <button type="submit" class="btn header__controls__search-form__btn">
+                    <svg class="icon header__controls__search-form__icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2"> 
+                        <path d="M10 2a8 8 0 105.293 14.293l4.707 4.707 1.414-1.414-4.707-4.707A8 8 0 0010 2zm0 2a6 6 0 110 12 6 6 0 010-12z"/> 
+                    </svg>
+                </button>
+                <input 
+                        id="search-input"
+                        type="text"
+                        class="header__controls__search-form__input" 
+                        placeholder="Search a location..."
+                        aria-label="Search"
+                        autocomplete="off"
+                        required>
+                </input>
+                <button class="btn header__controls__search-form__btn header__controls__search-form__btn--clear" type="button">
+                    <svg class="icon header__controls__search-form__btn--clear__icon" xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px"><path d="m336-280-56-56 144-144-144-143 56-56 144 144 143-144 56 56-144 143 144 144-56 56-143-144-144 144Z"/></svg>
+                </button>
+                <div class="header__controls__search-form__results-wrapper">
+                    <div class="header__controls__search-form__results results">
+                        <section class="results__current-location results__item">
+                            <div class="results__current-location__icon-wrapper">
+                                <svg class="icon results__current-location__icon--near-me" xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="currentColor"><path d="M516-120 402-402 120-516v-56l720-268-268 720h-56Zm26-148 162-436-436 162 196 78 78 196Zm-78-196Z"/></svg>
+                            </div>
+                            <span class="results__current-location__text">Search current location</span>
+                        </section>
+                        <div class="results__divider"></div>
+                        <section class="results__recents">
+                            <ul class="results__recents__list">
+                            </ul>
+                        </section>
+                        
+                        <section class="results__suggestions">
+                            <ul class="results__suggestions__list">
+                            </ul>
+                        </section>
+                    </div>
+                </div>
+            </form>
+
+            <div class="header__controls__temp-toggle glass-background">
+                <button class="btn header__controls__temp-toggle__btn">°F</button>
+                <button class="btn header__controls__temp-toggle__btn header__controls__temp-toggle__btn--active">°C</button>
+            </div>
+        </div>
+
+        <!-- Navigation -->
+        <nav class="header__nav glass-background">
+            <a class="link header__nav__link">
+                <svg class="icon header__nav__link__icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                    <circle cx="12" cy="10" r="3"/>
+                </svg>
+            </a>
+            <a class="link header__nav__link">
+                <svg class="icon header__nav__link__icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                </svg>
+            </a>
+            <a class="link header__nav__link">
+                <svg class="icon header__nav__link__icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+                </svg>
+            </a>
+            <a class="link header__nav__link">
+                <svg class="icon header__nav__link__icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="7" r="4"/>
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                </svg>
+            </a>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main">
+        <!-- Weather Summary -->
+        <section class="weather-summary">
+            <!-- Condition -->
+            <div class="weather-summary__condition">
+                <h1 class="weather-summary__condition__title">Rain</h1>
+                <h2 class="weather-summary__condition__subtitle">
+                    <span class="condition__sky">Partially cloudy</span> skies
+                </h2>
+            </div>
+            
+            <p class="weather-summary__description">
+                Partly cloudy throughout the day with storms possible.
+            </p>
+
+            <!-- Current Weather -->
+            <div class="weather-summary__current-weather current-weather">
+                <!-- Location -->
+                <div class="weather-summary__location location glass-background">
+                    <div class="weather-summary__location__icon-wrapper">
+                        <svg class="icon weather-summary__location__icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                            <circle cx="12" cy="10" r="3"/>
+                        </svg>
+                    </div>
+                    <span class="weather-summary__location__name">New York</span>
+                </div>
+                
+                <div class="current-weather__icon-wrapper">
+                    <img class="icon current-weather__icon" src="" alt="">
+                </div>
+
+                <div class="current-weather__temperature">
+                    <span class="current-weather__temperature__value">24</span>
+                </div>
+
+                <span class="current-weather__temperature__unit"></span>
+                
+                <div class="current-weather__datetime">
+                    <span class="current-weather__datetime__day">Thu</span>
+                    <span class="current-weather__datetime__time">17:00</span>
+                </div>
+
+                <div class="current-weather__details-panel">
+                    <div class="current-weather__precip">
+                        <span class="current-weather__precip__label">Precip:</span>
+                        <span class="current-weather__precip__value">0</span>
+                        <span class="current-weather__precip__unit">%</span>
+
+                    </div>
+                    <div class="current-weather__dew">
+                        <span class="current-weather__dew__label">Dew:</span>
+                        <span class="current-weather__dew__value">70</span>
+                        <span class="current-weather__dew__unit">%</span>
+                    </div>
+                    <div class="current-weather__wind">
+                        <span class="current-weather__wind__label">Wind:</span>
+                        <span class="current-weather__wind__value">26</span>
+                        <span class="current-weather__wind__unit">km/h</span>
+                    </div>
+                    <div class="current-weather__uv">
+                        <span class="current-weather__uv__label">UV:</span>
+                        <span class="current-weather__uv__value">3</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+        <aside class="aside">
+            <!-- Recents Panel -->
+            <section class="favourites">
+                <div class="favourites__header">
+                    <h3 class="favourites__header__title">Favourites</h3>
+                    <a href="#" class="link favourites__header__link--see-all glass-background">See all &gt;&gt;</a>
+                </div>
+    
+                <div class="favourites__navigation--overlay-wrapper">
+                    <div class="favourites__navigation favourites__navigation--overlay">
+                        <button class="btn favourites__navigation__btn favourites__navigation__btn--previous">
+                            <svg class="icon favourites__navigation__btn__icon favourites__btn--previous__icon" xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="currentColor"><path d="M400-80 0-480l400-400 71 71-329 329 329 329-71 71Z"></path></svg>
+                        </button>
+                        <button class="btn favourites__navigation__btn favourites__navigation__btn--next">
+                            <svg class="icon favourites__navigation__btn__icon favourites__btn--next__icon" xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="currentColor"><path d="m321-80-71-71 329-329-329-329 71-71 400 400L321-80Z"></path></svg>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="favourites__list-wrapper glass-background">
+                    <ul class="favourites__list">
+                    </ul>
+                </div>
+    
+                <div class="favourites__navigation favourites__navigation--bottom">
+                    <div class="favourites__indicators">
+
+                    </div>
+                </div>
+            </section>
+
+            <!-- 8-Day Forecast -->
+            <div class="forecast">
+                <ul class="forecast__list glass-background">
+                    <li class="forecast__list__item">
+                        <button class="btn forecast__list__item__btn">
+                            <span class="forecast__list__item__name">Wed</span>
+                            <div class="forecast__list__item__icon-wrapper">
+                                <img class="icon forecast__list__item__icon"/>
+                            </div>
+                            <div class="forecast__list__item__temps">
+                                <div class="forecast__list__item__temp forecast__list__item__temp--high">
+                                    <span class="forecast__list__item__temp--high__value">84</span>°
+                                </div>
+                                <div class="forecast__list__item__temp forecast__list__item__temp--low">
+                                    <span class="forecast__list__item__temp--low__value">66</span>°
+                                </div>
+                            </div>
+                        </button>
+                    </li>
+                    
+                    <li class="forecast__list__item">
+                        <button class="btn forecast__list__item__btn">
+                            <span class="forecast__list__item__name">Thu</span>
+                            <div class="forecast__list__item__icon-wrapper">
+                                <img class="icon forecast__list__item__icon"/>
+                            </div>
+                            <div class="forecast__list__item__temps">
+                                <div class="forecast__list__item__temp forecast__list__item__temp--high">
+                                    <span class="forecast__list__item__temp--high__value">84</span>°
+                                </div>
+                                <div class="forecast__list__item__temp forecast__list__item__temp--low">
+                                    <span class="forecast__list__item__temp--low__value">66</span>°
+                                </div>
+                            </div>
+                        </button>
+                    </li>
+                    
+                    <li class="forecast__list__item">
+                        <button class="btn forecast__list__item__btn">
+                            <span class="forecast__list__item__name">Fri</span>
+                            <div class="forecast__list__item__icon-wrapper">
+                                <img class="icon forecast__list__item__icon"/>
+                            </div>
+                            <div class="forecast__list__item__temps">
+                                <div class="forecast__list__item__temp forecast__list__item__temp--high">
+                                    <span class="forecast__list__item__temp--high__value">84</span>°
+                                </div>
+                                <div class="forecast__list__item__temp forecast__list__item__temp--low">
+                                    <span class="forecast__list__item__temp--low__value">66</span>°
+                                </div>
+                            </div>
+                        </button>
+                    </li>
+                    
+                    <li class="forecast__list__item">
+                        <button class="btn forecast__list__item__btn">
+                            <span class="forecast__list__item__name">Sat</span>
+                            <div class="forecast__list__item__icon-wrapper">
+                                <img class="icon forecast__list__item__icon"/>
+                            </div>
+                            <div class="forecast__list__item__temps">
+                                <div class="forecast__list__item__temp forecast__list__item__temp--high">
+                                    <span class="forecast__list__item__temp--high__value">84</span>°
+                                </div>
+                                <div class="forecast__list__item__temp forecast__list__item__temp--low">
+                                    <span class="forecast__list__item__temp--low__value">66</span>°
+                                </div>
+                            </div>
+                        </button>
+                    </li>
+                    
+                    <li class="forecast__list__item">
+                        <button class="btn forecast__list__item__btn">
+                            <span class="forecast__list__item__name">Sun</span>
+                            <div class="forecast__list__item__icon-wrapper">
+                                <img class="icon forecast__list__item__icon"/>
+                            </div>
+                            <div class="forecast__list__item__temps">
+                                <div class="forecast__list__item__temp forecast__list__item__temp--high">
+                                    <span class="forecast__list__item__temp--high__value">84</span>°
+                                </div>
+                                <div class="forecast__list__item__temp forecast__list__item__temp--low">
+                                    <span class="forecast__list__item__temp--low__value">66</span>°
+                                </div>
+                            </div>
+                        </button>
+                    </li>
+                    
+                    <li class="forecast__list__item">
+                        <button class="btn forecast__list__item__btn">                            
+                            <span class="forecast__list__item__name">Mon</span>
+                            <div class="forecast__list__item__icon-wrapper">
+                                <img class="icon forecast__list__item__icon"/>
+                            </div>
+                            <div class="forecast__list__item__temps">
+                                <div class="forecast__list__item__temp forecast__list__item__temp--high">
+                                    <span class="forecast__list__item__temp--high__value">84</span>°
+                                </div>
+                                <div class="forecast__list__item__temp forecast__list__item__temp--low">
+                                    <span class="forecast__list__item__temp--low__value">66</span>°
+                                </div>
+                            </div>
+                        </button>
+                    </li>
+                    
+                    <li class="forecast__list__item">
+                        <button class="btn forecast__list__item__btn">
+                            <span class="forecast__list__item__name">Tue</span>
+                            <div class="forecast__list__item__icon-wrapper">
+                                <img class="icon forecast__list__item__icon"/>
+                            </div>
+                            <div class="forecast__list__item__temps">
+                                <div class="forecast__list__item__temp forecast__list__item__temp--high">
+                                    <span class="forecast__list__item__temp--high__value">84</span>°
+                                </div>
+                                <div class="forecast__list__item__temp forecast__list__item__temp--low">
+                                    <span class="forecast__list__item__temp--low__value">66</span>°
+                                </div>
+                            </div>
+                        </button>
+                    </li>
+                    
+                    <li class="forecast__list__item">
+                        <button class="btn forecast__list__item__btn">
+                            <span class="forecast__list__item__name">Wed</span>
+                            <div class="forecast__list__item__icon-wrapper">
+                                <img class="icon forecast__list__item__icon"/>
+                            </div>
+                            <div class="forecast__list__item__temps">
+                                <div class="forecast__list__item__temp forecast__list__item__temp--high">
+                                    <span class="forecast__list__item__temp--high__value">84</span>°
+                                </div>
+                                <div class="forecast__list__item__temp forecast__list__item__temp--low">
+                                    <span class="forecast__list__item__temp--low__value">66</span>°
+                                </div>
+                            </div>
+                        </button>
+                    </li>
+                </ul>
+            </div>
+        </aside>
+
+        <!-- Charts Section -->
+        <section class="charts-panel">
+            <!-- Chart Controls -->
+            <div class="charts-panel__controls glass-background">
+                <button class="btn charts-panel__controls__btn charts-panel__controls__btn--active glass-background">Temperature</button>
+                <span class="charts-panel__controls__divider">|</span>
+                <button class="btn charts-panel__controls__btn">Precip</button>
+                <span class="charts-panel__controls__divider">|</span>
+                <button class="btn charts-panel__controls__btn">Wind</button>
+            </div>
+    
+            <!-- Chart Canvas -->
+            <div class="charts-panel__canvas-container">
+                <div class="charts-panel__canvas-wrapper">
+                    <canvas class="charts-panel__canvas"></canvas>
+                </div>
+            </div>
+
+        </section>
+    </main>
+    <!-- Scripts -->
     <script src="./index.js" type="module"></script>
 </body>
 </html>
