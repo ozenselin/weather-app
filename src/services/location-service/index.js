@@ -20,6 +20,10 @@ export const createLocationService = () => {
         state.initialize();
         api.initialize();
         events.initialize();
+        const location = state.getCurrentLocation();
+        console.log("*************CURRENT LOCAITON-**********",location);
+        console.log("*************USER LOCAITON-**********",state.getUserLocation());
+
 
         isInitialized = true;
     };

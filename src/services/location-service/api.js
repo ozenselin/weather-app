@@ -30,7 +30,7 @@ export const createAPI = () => {
                 suggestions 
             });
             
-            return suggestions;
+            return {query, suggestions};
         } catch (error) {
             console.error("Location API Error:", error);
             eventBus.emit("location:api-fetch-failed", { 
@@ -79,3 +79,5 @@ export const createAPI = () => {
         }
     };
 };
+
+export const locationAPI = createAPI();

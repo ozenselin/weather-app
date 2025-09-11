@@ -24,7 +24,7 @@ export const createState = () => {
         const previous = current;
 
         current = newLocation;
-
+        console.log("location:current-changed", getCurrentLocation())
         eventBus.emit("location:current-changed", getCurrentLocation());
 
         if (previous) {
@@ -50,6 +50,7 @@ export const createState = () => {
                 saveLocations();
 
                 //emit new list
+                console.log("location:recents-changed", getRecents())
                 eventBus.emit("location:recents-changed", getRecents());
             }
         }
@@ -78,6 +79,7 @@ export const createState = () => {
     const setRecents = (newRecents) => {
         recents = newRecents || [];
         saveLocations();
+        console.log("location:recents-changed", getRecents())
         eventBus.emit("location:recents-changed", getRecents());
     };
 
@@ -135,6 +137,7 @@ export const createState = () => {
         userLocation = newUserLocation;
         saveLocations();
         eventBus.emit("location:user-changed", getUserLocation());
+        setCurrentLocation(userLocation);
     };
 
     const saveLocations = () => {
