@@ -1,6 +1,6 @@
 export const createConverter = () => {
     const convertTemperature = (value, fromUnit, toUnit) => {
-        if (fromUnit === toUnit) return value;
+        if (fromUnit === toUnit) return value.toFixed(0);
         
         if (fromUnit === 'celsius' && toUnit === 'fahrenheit') {
             return ((value * 9/5) + 32).toFixed(0);
@@ -17,11 +17,11 @@ export const createConverter = () => {
         if (fromUnit === toUnit) return value;
         
         if (fromUnit === 'kmh' && toUnit === 'mph') {
-            return (value * 0.621371).toFixed(0);
+            return (value * 0.621371);
         }
         
         if (fromUnit === 'mph' && toUnit === 'kmh') {
-            return (value * 1.609344).toFixed(0);
+            return (value * 1.609344);
         }
         
         return value;

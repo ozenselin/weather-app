@@ -13,7 +13,7 @@ export const createState = () => {
     //Imperial system: fahrenheit, miles, ounces..,
     //Metric system: celcius, kilometer, grams...
     let temperatureUnit = 'celsius'; // celsius | fahrenheit
-    let speedUnit = 'kmh'; // kmh | mph
+    let speedUnit = 'km/h'; // km/h | mph
     let isImperial = false; 
 
 
@@ -31,7 +31,7 @@ export const createState = () => {
     const setSpeedUnit = (unit) => {
         if(!unit) return;
         const sanitizedUnit = unit.trim().toLowerCase();
-        if (sanitizedUnit !== 'kmh' && sanitizedUnit !== 'mph') return;
+        if (sanitizedUnit !== 'km/h' && sanitizedUnit !== 'mph') return;
         speedUnit = sanitizedUnit;
         saveUnits();
         eventBus.emit("unit:speed-changed", speedUnit);
@@ -43,14 +43,14 @@ export const createState = () => {
     };
 
     const toggleSpeedUnit = () => {
-        const newUnit = speedUnit === 'kmh' ? 'mph' : 'kmh';
+        const newUnit = speedUnit === 'km/h' ? 'mph' : 'km/h';
         setSpeedUnit(newUnit);
     };
 
     const toggleSystem = () => {
         if (isImperial) {
             setTemperatureUnit('celsius');
-            setSpeedUnit('kmh');
+            setSpeedUnit('km/h');
         } else {
             setTemperatureUnit('fahrenheit');
             setSpeedUnit('mph');
@@ -86,7 +86,7 @@ export const createState = () => {
         const units = loadUnits();
         if (units) {
             temperatureUnit = units.temperatureUnit || 'celsius';
-            speedUnit = units.speedUnit || 'kmh';
+            speedUnit = units.speedUnit || 'km/h';
             isImperial = units.isImperial || false;
         }
 
@@ -105,7 +105,7 @@ export const createState = () => {
         }
 
         temperatureUnit = 'celsius';
-        speedUnit = 'kmh';
+        speedUnit = 'km/h';
         isImperial = false;
         isInitialized = false;
     };

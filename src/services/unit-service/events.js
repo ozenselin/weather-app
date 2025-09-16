@@ -37,7 +37,7 @@ export const createEvents = (state, converter) => {
     };
 
     const convertSpeed = (value, fromUnit = null, toUnit = null) => {
-        const from = fromUnit || 'kmh';
+        const from = fromUnit || 'km/h';
         const to = toUnit || state.getSpeedUnit();
         return converter.convertSpeed(value, from, to);
     };
@@ -73,23 +73,48 @@ export const createEvents = (state, converter) => {
         const convertedTemperature = convertTemperature(value, fromUnit, toUnit);
         respond(convertedTemperature);
     }
+
+    const handleSpeedAssignmentRequest = ({value, fromUnit, toUnit, respond}) => {
+        const convertedSpeed = convertSpeed(value, fromUnit, toUnit);
+        respond(convertedSpeed);
+    }
+
+    const handleSpeedUnitRequest = (respond) => {
+        const speedUnit = state.getSpeedUnit();
+        respond(speedUnit);
+    }
+
+    const handleTemperatureUnitRequest = (respond) => {
+        const temperatureUnit = state.getTemperatureUnit();
+        respond(temperatureUnit);
+    }
+
+    const handleSystemRequest = (respond) => {
+        const isImperial = state.getIsImperial();
+        if(isImperial) respond("imperial");
+        respond("metric");
+    }
+
     const setupEventListeners = () => {
         eventBus.on("unit:toggle-temperature-requested", handleTemperatureToggleRequest);
         eventBus.on("unit:toggle-speed-requested", handleSpeedToggleRequest);
         eventBus.on("unit:toggle-system-requested", handleSystemToggleRequest);
-        eventBus.on("unit:set-temperature-requested", handleTemperatureSetRequest);
-        eventBus.on("unit:set-speed-requested", handleSpeedSetRequest);
-        eventBus.on("unit:units-requested", handleUnitsRequest);
 
         //display requests
         eventBus.on("unit:display-temperature-requested", handleDisplayTemperatureRequest);
         eventBus.on("unit:display-speed-requested", handleDisplaySpeedRequest);
-
-        eventBus.on("unit:display-temperature-unit-requested", handleDisplayTemperatureUnitRequest);
         eventBus.on("unit:display-speed-unit-requested", handleDisplaySpeedUnitRequest);
 
-        //responde requests
+        //unit & system requests (respond requests)
+        eventBus.on("unit:units-requested", handleUnitsRequest);
+        eventBus.on("unit:speed-unit-requested", handleSpeedUnitRequest);
+        eventBus.on("unit:temperature-unit-requested", handleTemperatureUnitRequest);
+        eventBus.on("unit:system-requested", handleSystemRequest);
+
+
+        //respond requests (responde requests)
         eventBus.on("unit:temperature-assignment-requested", handleTemperatureAssignmentRequest)
+        eventBus.on("unit:speed-assignment-requested", handleSpeedAssignmentRequest)
     };
 
     const removeEventListeners = () => {
@@ -101,7 +126,6 @@ export const createEvents = (state, converter) => {
 
         //display requests
         eventBus.off("unit:display-temperature-requested", handleDisplayTemperatureRequest);
-        eventBus.off("unit:display-temperature-requested", handleDisplaySpeedRequest);
     };
 
     const initialize = () => {
