@@ -23,16 +23,13 @@ export const createState = () => {
     const setChartDatas = async (forecast, dayIndex) => {
         const processedChartDatas = await processChartDatas(forecast, dayIndex);
         if (!processedChartDatas) {
-            console.error("Failed to process chart data for dayIndex:", dayIndex);
             return;
         }
         chartDatas = processedChartDatas;
-        console.log("Chart datas populated:", chartDatas);
     };
 
     const getChartDatas = () => {
         if (!chartDatas || chartDatas.length === 0) {
-            console.warn("Chart datas not yet populated");
             return null;
         }
         return [...chartDatas];
@@ -40,13 +37,13 @@ export const createState = () => {
 
 const processChartDatas = async (forecast, dayIndex) => {
     if (!forecast || dayIndex == null) {
-        console.error("Invalid forecast or dayIndex:", { forecast, dayIndex });
+        console.error("forecast data or day index invalid:", { forecast, dayIndex });
         return null;
     }
 
     const dayData = forecast.days.at(dayIndex);
     if (!dayData || !dayData.hours) {
-        console.error("Invalid day data or hours:", dayData);
+        console.error("forecast data or day index invalid:", dayData);
         return null;
     }
 
@@ -167,8 +164,6 @@ const getChartConfig = (processedData) => {
     const range = safeMaxValue - safeMinValue;
     const precipMax = name === 'precip' ? Math.max(0.02, range * 2) : null;
 
-    console.log('Chart config for', name, ':', { ordinats, rawOrdinats, minvalue, maxvalue, range, maxvalue });
-
     return {
         type: chartType,
         data: {
@@ -204,7 +199,6 @@ const getChartConfig = (processedData) => {
                     callbacks: {
                         label: (context) => {
                             const value = name === 'precip' && rawOrdinats ? rawOrdinats[context.dataIndex] : context.raw;
-                            console.log('Tooltip value:', { index: context.dataIndex, value, rawOrdinats: rawOrdinats ? rawOrdinats[context.dataIndex] : 'undefined', ordinats: context.raw });
                             return (value < 0.1 ? value.toFixed(3) : value.toFixed(2)) + ' mm';
                         }
                     }
@@ -254,7 +248,6 @@ const getChartConfig = (processedData) => {
     const getChartInstance = () => chartInstance;
 
     const setChartInstance = (newChartInstance) => {
-        console.log("Setting chart instance:", newChartInstance);
         chartInstance = newChartInstance;
     };
 

@@ -13,7 +13,6 @@ export const createEvents = (state, dom) => {
 
     // Event handlers for chart interactions
     const handleTemperatureClick = (data) => {
-        console.log("handleTemperatureClick", data);
         const {index} = data;
         eventBus.emit("weather:hour-change-requested", index);
     };
@@ -25,12 +24,9 @@ export const createEvents = (state, dom) => {
 
     const handleChartError = (error) => {
         console.error('Chart error:', error);
-        // You could show user-friendly error message here
-        console.log('Chart loading error.');
     };
 
     const handleForecastChange = ({forecast}) => {
-        console.log("Forecast received:", forecast);
         state.setChartIndex(0);
         dom.updateClasses(0);
         handleDayIndexChange({forecast, dayIndex: 0});
@@ -51,15 +47,12 @@ export const createEvents = (state, dom) => {
     };
 
     const handleControlsClick = (event) => {
-        console.log("Controls clicked:", event);
         const button = event.target.closest("button");
         
         if (!button) return;
         
         const buttons = elements.buttons;
         const index = buttons.findIndex(btn => btn === button);
-        
-        console.log("Selected chart index:", index);
         
         if (index === -1) return;
         
@@ -72,22 +65,31 @@ export const createEvents = (state, dom) => {
         // render new chart
         const chartDatas = state.getChartDatas();
         if (chartDatas && chartDatas[index]) {
-            console.log("Rendering chart for:", chartDatas[index].name);
             dom.createChart(chartDatas[index]);
         } else {
-            console.error("Chart data not found for index:", index);
+            console.error("chart data not found, index:", index);
         }
     };
 
-    const handleChartIndexChange = (newIndex) => {
-        console.log("Chart index changed to:", newIndex);
-        
+    const handleChartIndexChange = (newIndex) => { 
         const chartDatas = state.getChartDatas();
         if (chartDatas && chartDatas[newIndex]) {
             dom.clearChart();
             dom.createChart(chartDatas[newIndex]);
         }
     };
+
+    const handleTemperatureUnitChange = () => {
+        eventBus.emit("weather:forecast-requested", (state) => {
+            handleDayIndexChange(state);
+        });
+    }
+
+    const handleSpeedUnitChange = () => {
+        eventBus.emit("weather:forecast-requested", (state) => {
+            handleDayIndexChange(state);
+        });
+    }
 
     const setupEventListeners = () => {
         elements = dom.getElements();
@@ -99,6 +101,8 @@ export const createEvents = (state, dom) => {
         //setup custom event listners
         eventBus.on("weather:forecast-changed", handleForecastChange);
         eventBus.on("weather:day-changed", handleDayIndexChange);
+        eventBus.on("unit:temperature-changed", handleTemperatureUnitChange);
+        eventBus.on("unit:speed-changed", handleSpeedUnitChange);
 
         //internal events
         eventBus.on("chart:index-changed", handleChartIndexChange);

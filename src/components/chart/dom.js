@@ -1,6 +1,5 @@
 import { eventBus } from "../../shared/eventBus.js";
 import { config } from "../../shared/config.js";
-import { remToPixels } from "../../shared/utils/conversions.js";
 
 export const createDOM = (state) => {
     if (!config || !eventBus || !state) {
@@ -69,108 +68,111 @@ export const createDOM = (state) => {
         }
     };
 
-const createInteractiveElements = (chart, chartData) => {
-    const { abscissas, ordinats, rawOrdinats } = chartData;
-    const wrapper = elements.canvasWrapper;
-    
-    if (!wrapper) return;
+    const createInteractiveElements = (chart, chartData) => {
+        const { abscissas, ordinats, rawOrdinats } = chartData;
+        const wrapper = elements.canvasWrapper;
+        
+        if (!wrapper) return;
 
-    wrapper.querySelectorAll('.charts-panel__canvas__btn--value, .charts-panel__canvas__btn--hour').forEach(b => b.remove());
+        wrapper.querySelectorAll('.charts-panel__canvas__btn--value, .charts-panel__canvas__btn--hour').forEach(b => b.remove());
 
-    const meta = chart.getDatasetMeta(0);
-    const chartType = chart.config.type;
+        const meta = chart.getDatasetMeta(0);
+        const chartType = chart.config.type;
 
-    if (chartType === 'bar') { //precip label buttons
-        // meta.data.forEach((bar, index) => {
-        //     if (index % 3 === 1) {
-        //         const btn = createValueButton(bar, index, ordinats, rawOrdinats || ordinats, abscissas, chartData.name, true);
-        //         wrapper.appendChild(btn);
-        //     }
-        // });
-    } else {
-        meta.data.forEach((point, index) => {
-            if (index % 3 === 0) {
-                const btn = createValueButton(point, index, ordinats, rawOrdinats || ordinats, abscissas, chartData.name, false);
+        if (chartType === 'bar') { //precip label buttons
+            // meta.data.forEach((bar, index) => {
+            //     if (index % 3 === 1) {
+            //         const btn = createValueButton(bar, index, ordinats, rawOrdinats || ordinats, abscissas, chartData.name, true);
+            //         wrapper.appendChild(btn);
+            //     }
+            // });
+        } else {
+            meta.data.forEach((point, index) => {
+                if (index % 3 === 0) {
+                    const btn = createValueButton(point, index, ordinats, rawOrdinats || ordinats, abscissas, chartData.name, false);
+                    wrapper.appendChild(btn);
+                }
+            });
+        }
+
+        const xAxis = chart.scales.x;
+        xAxis.ticks.forEach((tick, i) => {
+            if (i % 3 === 1) {
+                const btn = createHourButton(xAxis, tick, i, chart.height);
                 wrapper.appendChild(btn);
             }
         });
-    }
-
-    const xAxis = chart.scales.x;
-    xAxis.ticks.forEach((tick, i) => {
-        if (i % 3 === 1) {
-            const btn = createHourButton(xAxis, tick, i, chart.height);
-            wrapper.appendChild(btn);
-        }
-    });
-};
-
-const createValueButton = (element, index, ordinats, rawOrdinats, abscissas, chartType, isBar = false) => {
-    const btn = document.createElement('button');
-    btn.classList.add('btn', 'charts-panel__canvas__btn', 'charts-panel__canvas__btn--value');
-    btn.style.left = isBar ? `${element.x}px` : `${element.x}px`;
-    btn.style.top = isBar ? `10px` : `${element.y - 20}px`;
-    
-    let displayText = '';
-    const value = chartType === 'precip' && ordinats[index] === 0.001 ? 0 : (rawOrdinats[index] !== undefined ? rawOrdinats[index] : ordinats[index]);
-    
-    switch (chartType) {
-        case 'temperature':
-            eventBus.emit("unit:temperature-symbol-requested", {
-                respond: (symbol) => {
-                    btn.textContent = Math.round(value) + symbol;
-                }
-            });
-            break;
-        case 'precip':
-            eventBus.emit("unit:precipitation-symbol-requested", {
-                respond: (symbol) => {
-                    btn.textContent = (value < 0.1 ? value.toFixed(3) : value.toFixed(2)) + symbol;
-                }
-            });
-            break;
-        case 'wind':
-            eventBus.emit("unit:speed-symbol-requested", {
-                respond: (symbol) => {
-                    btn.textContent = Math.round(value) + symbol;
-                }
-            });
-            break;
-        default:
-            btn.textContent = (value < 0.1 ? value.toFixed(2) : Math.round(value));
-    }
-    
-    setTimeout(() => {
-        if (!btn.textContent || btn.textContent === '') {
-            switch (chartType) {
-                case 'temperature':
-                    btn.textContent = Math.round(value) + '°C';
-                    break;
-                case 'precip':
-                    btn.textContent = (value < 0.1 ? value.toFixed(3) : value.toFixed(2)) + 'mm';
-                    break;
-                case 'wind':
-                    btn.textContent = Math.round(value) + 'km/h';
-                    break;
-                default:
-                    btn.textContent = (value < 0.1 ? value.toFixed(2) : Math.round(value));
-            }
-        }
-    }, 10);
-    
-    btn.onclick = () => {
-        const formattedHour = abscissas[index].substring(0, 5);
-        const clickValue = chartType === 'precip' && ordinats[index] === 0.001 ? 0 : (rawOrdinats[index] !== undefined ? rawOrdinats[index] : ordinats[index]);
-        eventBus.emit('chart:value-clicked', {
-            hour: formattedHour,
-            value: clickValue,
-            chartType: chartType,
-            index
-        });
     };
-    
-    return btn;
-};
+
+    const createValueButton = (element, index, ordinats, rawOrdinats, abscissas, chartType, isBar = false) => {
+        const btn = document.createElement('button');
+        btn.classList.add('btn', 'charts-panel__canvas__btn', 'charts-panel__canvas__btn--value');
+        btn.style.left = isBar ? `${element.x}px` : `${element.x}px`;
+        btn.style.top = isBar ? `10px` : `${element.y - 20}px`;
+        
+        let displayText = '';
+        const value = chartType === 'precip' && ordinats[index] === 0.001 ? 0 : (rawOrdinats[index] !== undefined ? rawOrdinats[index] : ordinats[index]);
+        
+        switch (chartType) {
+            case 'temperature':
+                eventBus.emit("unit:temperature-symbol-requested", {
+                    respond: (symbol) => {
+                        btn.textContent = Math.round(value) + symbol;
+                    }
+                });
+                break;
+            case 'precip':
+                eventBus.emit("unit:precipitation-symbol-requested", {
+                    respond: (symbol) => {
+                        btn.textContent = (value < 0.1 ? value.toFixed(3) : value.toFixed(2)) + symbol;
+                    }
+                });
+                break;
+            case 'wind':
+                eventBus.emit("unit:speed-symbol-requested", {
+                    respond: (symbol) => {
+                        btn.textContent = Math.round(value) + symbol;
+                    }
+                });
+                break;
+            default:
+                btn.textContent = (value < 0.1 ? value.toFixed(2) : Math.round(value));
+        }
+        
+        setTimeout(() => {
+            if (!btn.textContent || btn.textContent === '') {
+                switch (chartType) {
+                    case 'temperature':
+                        btn.textContent = Math.round(value) + '°';
+                        break;
+                    case 'precip':
+                        btn.textContent = (value < 0.1 ? value.toFixed(3) : value.toFixed(2)) + 'mm';
+                        break;
+                    case 'wind':
+                        btn.textContent = Math.round(value);
+                        eventBus.emit("unit:speed-unit-requested", (unit) => {
+                            btn.textContent += unit;
+                        });
+                        break;
+                    default:
+                        btn.textContent = (value < 0.1 ? value.toFixed(2) : Math.round(value));
+                }
+            }
+        }, 10);
+        
+        btn.onclick = () => {
+            const formattedHour = abscissas[index].substring(0, 5);
+            const clickValue = chartType === 'precip' && ordinats[index] === 0.001 ? 0 : (rawOrdinats[index] !== undefined ? rawOrdinats[index] : ordinats[index]);
+            eventBus.emit('chart:value-clicked', {
+                hour: formattedHour,
+                value: clickValue,
+                chartType: chartType,
+                index
+            });
+        };
+        
+        return btn;
+    };
 
     const createHourButton = (xAxis, tick, index, chartHeight) => {
         const btn = document.createElement('button');
@@ -245,7 +247,7 @@ const createValueButton = (element, index, ordinats, rawOrdinats, abscissas, cha
     const updateChartColors = (borderColor, backgroundColor) => {
         const chartInstance = state.getChartInstance();
         if (!chartInstance) {
-            console.log('Chart instance not found. Must initiliaze first.');
+            console.log('Must initiliaze chart instance first.');
             return;
         }
 
@@ -311,6 +313,10 @@ const createValueButton = (element, index, ordinats, rawOrdinats, abscissas, cha
             }
         });
     }
+
+    const remToPixels = (rem) => {    
+        return rem * parseFloat(getComputedStyle(document.documentElement).fontSize);
+    };
 
     return {
         initialize,
