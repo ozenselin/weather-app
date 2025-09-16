@@ -1,6 +1,6 @@
 import { createEventManager } from "../../shared/eventManager.js";
 import { eventBus } from "../../shared/eventBus.js";
-import { config } from "../../shared/config.js";
+import { config, favourites } from "../../shared/config.js";
 import { getDateFromUTCOffset } from "../../shared/utils/date.js";
 
 export const createEvents = (state) => {
@@ -16,7 +16,6 @@ export const createEvents = (state) => {
         if (!newLocation) return;
 
         try {
-            eventBus.emit("weather:fetch-started", newLocation);
             // Import API dynamically to avoid circular dependency
             const { weatherAPI } = await import("./api.js");
             const newForecastData = await weatherAPI.fetchWeatherForecast(newLocation);
@@ -27,7 +26,6 @@ export const createEvents = (state) => {
             state.setCurrentDayIndex(0);
             const hourIndex = getDateFromUTCOffset(newForecastData.tzoffset).getHours();
             state.setCurrentHourIndex(hourIndex);
-            eventBus.emit("weather:fetch-completed", newForecastData);
         } catch (error) {
             console.error('Weather service fetch error:', error);
             eventBus.emit("weather:fetch-error", { location: newLocation, error });
@@ -55,6 +53,124 @@ export const createEvents = (state) => {
         state.addNewFavouriteForecast(forecast);
     };
 
+    const emitWeatherStateChange = () => {
+        eventBus.emit("weather:state-changed", {
+            forecast: state.getCurrentForecast(),
+            hourIndex: state.getCurrentHourIndex(),
+            dayIndex: state.getCurrentDayIndex(),
+        });
+    }
+
+    const handleForecastRequest = (respond) => {
+        respond(state.getCurrentState());
+    }
+    
+    const handleFavouriteForecastsRequest = () => {
+        eventBus.emit("weather:favourite-forecasts-delivered",  state.getFavouriteForecasts());
+    }
+
+    const updateCacheWithFresh = (currentForecasts, refreshedForecasts) => {
+        const updatedForecasts = [...currentForecasts];
+        
+        refreshedForecasts.forEach(freshForecast => {
+            const existingIndex = updatedForecasts.findIndex(cached => 
+                cached.location.id == freshForecast.location.id
+            );
+            
+            if (existingIndex >= 0) {
+                updatedForecasts[existingIndex] = freshForecast;
+            } else {
+                updatedForecasts.push(freshForecast);
+            }
+        });
+        
+        return updatedForecasts;
+    };
+
+    const backgroundRefresh = async (locations) => {
+        console.log("Background refresh starting");
+        const { weatherAPI } = await import("./api.js");
+        const refreshedForecasts = await fetchWithDelay(locations, weatherAPI);
+        
+        // Quietly update cache
+        const currentForecasts = state.getFavouriteForecasts();
+        const updatedForecasts = updateCacheWithFresh(currentForecasts, refreshedForecasts);
+        state.setFavouriteForecasts(updatedForecasts);
+        console.log("Background refresh completed, updated forecasts:", updatedForecasts);
+    };
+    
+    const fetchWithDelay = async (locations, weatherAPI) => {
+        const forecasts = [];
+        
+        for (const location of locations) {
+            try {
+                const newForecastData = await weatherAPI.fetchWeatherForecast(location);
+                newForecastData.location = location;
+                forecasts.push(newForecastData);
+                
+                // if not last element of array 
+                if (locations.indexOf(location) < locations.length - 1) {
+                    //wait for for rate limit
+                    await new Promise(resolve => setTimeout(resolve, 0));
+                }
+                
+            } catch(error) {
+                console.error('Weather fetch error:', error);
+                eventBus.emit("weather:fetch-error", { location, error });
+            }
+        }
+        
+        return forecasts;
+    };
+
+    const separateCachedAndNew = (favoriteLocations, favouriteForecasts) => {
+        const cached = [];
+        const needsFetch = [];
+        
+        favoriteLocations.forEach(location => {
+            const existingForecast = favouriteForecasts.find(forecast => {
+                forecast.location.id == location.id
+            });
+            
+            if(existingForecast) {
+                cached.push(existingForecast);
+            } else {
+                needsFetch.push(location);
+            }
+        });
+        
+        return { cached, needsFetch };
+    };
+
+    const handleFavouriteLocationsChange = async (newFavouriteLocations) => {
+        if(!newFavouriteLocations) return;
+
+        const currentForecasts = state.getFavouriteForecasts(); // get cached forecasts
+        const { weatherAPI } = await import("./api.js");
+        
+        // classification
+        const { cached, needsFetch } = separateCachedAndNew(newFavouriteLocations, currentForecasts);
+        
+        //initially all forecasts only contain cached forecasts
+        let allForecasts = [...cached];
+        
+        // if fetching is needed
+        if (needsFetch.length > 0) {
+            //fetch with delay
+            const freshForecasts = await fetchWithDelay(needsFetch, weatherAPI);
+            //update allForecasts
+            allForecasts = [...allForecasts, ...freshForecasts];
+        }
+        
+        //update favourite forecasts
+        state.setFavouriteForecasts(allForecasts);
+        
+        // refresh every 15 minutes
+        setTimeout(() => backgroundRefresh(newFavouriteLocations), 15 * 60 * 1000);
+    }
+
+
+
     const setupEventListeners = () => {
         // Listen for location changes
         eventBus.on("location:current-changed", handleCurrentLocationChange);
@@ -63,17 +179,19 @@ export const createEvents = (state) => {
         eventBus.on("weather:forecast-change-requested", handleCurrentForecastChangeRequest);
         eventBus.on("weather:day-change-requested", handleDayChangeRequest);
         eventBus.on("weather:hour-change-requested", handleHourChangeRequest);
-        eventBus.on("weather:unit-change-requested", handleUnitChangeRequest);
         eventBus.on("weather:add-favourite-requested", handleAddToFavouritesRequest);
+        eventBus.on("weather:forecast-requested", handleForecastRequest);
+        eventBus.on("weather:favourite-forecasts-requested", handleFavouriteForecastsRequest);
+
+        //location changes
+        eventBus.on("location:favourites-changed", handleFavouriteLocationsChange);
+
+
+        //listen for weather changes
     };
 
     const removeEventListeners = () => {
-        eventBus.off("location:current-changed", handleCurrentLocationChange);
-        eventBus.off("weather:forecast-change-requested", handleCurrentForecastChangeRequest);
-        eventBus.off("weather:day-change-requested", handleDayChangeRequest);
-        eventBus.off("weather:hour-change-requested", handleHourChangeRequest);
-        eventBus.off("weather:unit-change-requested", handleUnitChangeRequest);
-        eventBus.off("weather:add-favourite-requested", handleAddToFavouritesRequest);
+
     };
 
     const initialize = () => {

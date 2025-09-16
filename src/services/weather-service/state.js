@@ -27,9 +27,16 @@ export const createState = () => {
     const setCurrentForecast = (newForecast) => {
         if (!newForecast) return;
         currentForecast = newForecast;
-        console.log("emitting weather:forecast-changed", getCurrentForecast());
-        eventBus.emit("weather:forecast-changed", getCurrentForecast());
+        eventBus.emit("weather:forecast-changed", getCurrentState());
     };
+
+    const getCurrentState = () => {
+        return {
+            forecast: getCurrentForecast(),
+            dayIndex: getCurrentDayIndex(),
+            hourIndex: getCurrentHourIndex(),
+        }
+    }
 
     const getFavouriteForecasts = () => {
         if (!favouriteForecasts) return [];
@@ -62,7 +69,6 @@ export const createState = () => {
         saveFavourites();
 
         //emit new list
-        console.log("weather:favourites-changed", getFavouriteForecasts());
         eventBus.emit("weather:favourites-changed", getFavouriteForecasts());
     };
 
@@ -93,7 +99,6 @@ export const createState = () => {
         saveFavourites();
 
         //emit new list
-        console.log("emitting weather:favourites-changed", getFavouriteForecasts());
         eventBus.emit("weather:favourites-changed", getFavouriteForecasts());
     };
 
@@ -112,10 +117,10 @@ export const createState = () => {
         if (newHourIndex || newHourIndex === 0) {
             currentHourIndex = newHourIndex;
         } else {
-            currentHourIndex = null;
+            currentHourIndex = null; //allow current hour index to be null
         }
-        console.log("weather:current-hour-changed", currentHourIndex);
-        eventBus.emit("weather:current-hour-changed", currentHourIndex);
+
+        eventBus.emit("weather:hour-changed", getCurrentState());
     };
 
     const getCurrentDayIndex = () => {
@@ -129,7 +134,7 @@ export const createState = () => {
 
         previousDayIndex = currentDayIndex;
         currentDayIndex = newDayIndex;
-        eventBus.emit("weather:current-day-changed", currentDayIndex);
+        eventBus.emit("weather:day-changed", getCurrentState());
     };
 
     const getPreviousDayIndex = () => {
@@ -195,6 +200,7 @@ export const createState = () => {
         addNewFavouriteForecast, 
         getFavouriteForecasts, 
         setFavouriteForecasts,
+        getCurrentState,
         get isInitialized() {
             return isInitialized;
         }

@@ -39,58 +39,9 @@ export const createWeatherService = () => {
         isInitialized = false;
     };
 
-    // Public API methods
-    const getCurrentForecast = () => {
-        if (!isInitialized) throw new Error("Must call initialize() first!");
-        return state.getCurrentForecast();
-    };
-
-    const fetchWeatherForLocation = async (location) => {
-        if (!isInitialized) throw new Error("Must call initialize() first!");
-        return api.fetchWeatherForecast(location);
-    };
-
-    const getFavouriteForecasts = () => {
-        if (!isInitialized) throw new Error("Must call initialize() first!");
-        return state.getFavouriteForecasts();
-    };
-
-    const addToFavourites = (forecast) => {
-        if (!isInitialized) throw new Error("Must call initialize() first!");
-        return state.addNewFavouriteForecast(forecast);
-    };
-
-    const getCurrentDayIndex = () => {
-        if (!isInitialized) throw new Error("Must call initialize() first!");
-        return state.getCurrentDayIndex();
-    };
-
-    const getCurrentHourIndex = () => {
-        if (!isInitialized) throw new Error("Must call initialize() first!");
-        return state.getCurrentHourIndex();
-    };
-
-    const setCurrentDay = (dayIndex) => {
-        if (!isInitialized) throw new Error("Must call initialize() first!");
-        return state.setCurrentDayIndex(dayIndex);
-    };
-
-    const setCurrentHour = (hourIndex) => {
-        if (!isInitialized) throw new Error("Must call initialize() first!");
-        return state.setCurrentHourIndex(hourIndex);
-    };
-
     return {
         initialize,
         destroy,
-        getCurrentForecast,
-        fetchWeatherForLocation,
-        getFavouriteForecasts,
-        addToFavourites,
-        getCurrentDayIndex,
-        getCurrentHourIndex,
-        setCurrentDay,
-        setCurrentHour,
         get isInitialized() {
             return isInitialized;
         }
