@@ -30,8 +30,9 @@ export const createEvents = (state, dom) => {
     };
 
     const getDotIndex = (targetDot) => {
-        if (!elements?.dots) return -1;
-        return elements.dots.findIndex((dot) => dot === targetDot);
+        const dots = dom.getElements()?.dots;
+        if (!dots) return -1;
+        return dots.findIndex((dot) => dot === targetDot);
     };
 
     const handleDotClick = (event) => {
