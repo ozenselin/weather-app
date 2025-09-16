@@ -11,7 +11,6 @@ export const createDOM = (state) => {
 
     let elements = null;
     let isInitialized = false;
-    let highlightedIndex = -1;
 
     const cacheElements = () => {
         elements = {
@@ -35,6 +34,11 @@ export const createDOM = (state) => {
         return elements;
     };
 
+    const getSearchInput = () => {
+        const input = getElements().input;
+        return input ? input.value : "";
+    };
+
     const openDropdown = () => {
         const dropdown = getElements().dropdown;
         if (dropdown) {
@@ -47,21 +51,8 @@ export const createDOM = (state) => {
         const dropdown = getElements().dropdown;
         if (dropdown) {
             dropdown.classList.remove("is-open");
-            highlightedIndex = -1;
             eventBus.emit("search:dropdown-closed");
         }
-    };
-
-    const isDropdownHovered = () => {
-        const dropdown = getElements().dropdown;
-        return dropdown && dropdown.matches(':hover');
-    };
-
-    const isClickInside = (target) => {
-        const dropdown = getElements().dropdown;
-        const input = getElements().input;
-        return (dropdown && dropdown.contains(target)) || 
-               (input && input.contains(target));
     };
 
     const highlightText = (text, searchTerm) => {
@@ -70,38 +61,58 @@ export const createDOM = (state) => {
         return text.replace(regex, '<span class="match">$1</span>');
     };
 
-    const displaySuggestions = (suggestions = []) => {
+    const highlightItem = (span, searchTerm) => {
+        if (!span || !searchTerm) return;
+        span.innerHTML = highlightText(span.textContent, searchTerm);
+    };
+
+    const displaySuggestions = () => {
+        const input = getSearchInput().toLowerCase();
         const suggestionsList = getElements().suggestionsList;
         if (!suggestionsList) return;
 
         suggestionsList.innerHTML = "";
+        if (!input.trim()) return; // Don't display suggestions if input is empty
 
-        const limitedSuggestions = suggestions.slice(0, SUGGESTIONS_MAX_ITEMS_SHOWN);
-        const searchQuery = state.getSearchQuery();
+        const suggestions = state.getSuggestions() || [];
+        const filtered = suggestions.filter(suggestion => 
+            suggestion.fullName.toLowerCase().includes(input)
+        ).slice(0, SUGGESTIONS_MAX_ITEMS_SHOWN);
 
-        limitedSuggestions.forEach(suggestion => {
-            const item = createSuggestionsListItem(suggestion, searchQuery);
+        filtered.forEach(suggestion => {
+            const item = createSuggestionsListItem(suggestion, input);
             suggestionsList.appendChild(item);
         });
 
-        updateHighlight();
+        if (input.trim()) {
+            suggestionsList.querySelectorAll('span').forEach(span => {
+                highlightItem(span, input);
+            });
+        }
     };
 
-    const displayRecents = (recents = []) => {
+    const displayRecents = () => {
+        const input = getSearchInput().toLowerCase();
         const recentsList = getElements().recentsList;
         if (!recentsList) return;
 
         recentsList.innerHTML = "";
 
-        const limitedRecents = recents.slice(0, RECENTS_MAX_ITEMS_SHOWN);
-        const searchQuery = state.getSearchQuery();
+        const recents = state.getRecents() || [];
+        const filtered = recents.filter(recent => 
+            recent.fullName.toLowerCase().includes(input)
+        ).slice(0, RECENTS_MAX_ITEMS_SHOWN);
 
-        limitedRecents.forEach(recent => {
-            const item = createRecentsListItem(recent, searchQuery);
+        filtered.forEach(recent => {
+            const item = createRecentsListItem(recent, input);
             recentsList.appendChild(item);
         });
 
-        updateHighlight();
+        if (input.trim()) {
+            recentsList.querySelectorAll('span').forEach(span => {
+                highlightItem(span, input);
+            });
+        }
     };
 
     const createListItem = (item, listName, searchTerm = "") => {
@@ -148,54 +159,6 @@ export const createDOM = (state) => {
         }
     };
 
-    const blurInput = () => {
-        const input = getElements().input;
-        if (input) {
-            input.blur();
-        }
-    };
-
-    const navigateItems = (direction) => {
-        const visibleItems = getVisibleItems();
-        if (visibleItems.length === 0) return;
-
-        if (direction === 'down') {
-            highlightedIndex = highlightedIndex < visibleItems.length - 1 ? 
-                highlightedIndex + 1 : 0;
-        } else {
-            highlightedIndex = highlightedIndex > 0 ? 
-                highlightedIndex - 1 : visibleItems.length - 1;
-        }
-
-        updateHighlight();
-    };
-
-    const getVisibleItems = () => {
-        const dropdown = getElements().dropdown;
-        if (!dropdown) return [];
-        return Array.from(dropdown.querySelectorAll('.results__item'));
-    };
-
-    const updateHighlight = () => {
-        const visibleItems = getVisibleItems();
-        
-        // Remove previous highlight
-        visibleItems.forEach(item => item.classList.remove('highlighted'));
-        
-        // Add new highlight
-        if (highlightedIndex >= 0 && highlightedIndex < visibleItems.length) {
-            visibleItems[highlightedIndex].classList.add('highlighted');
-        }
-    };
-
-    const getHighlightedItem = () => {
-        const visibleItems = getVisibleItems();
-        if (highlightedIndex >= 0 && highlightedIndex < visibleItems.length) {
-            return visibleItems[highlightedIndex];
-        }
-        return null;
-    };
-
     const initialize = () => {
         if (isInitialized) return;
         cacheElements();
@@ -208,7 +171,6 @@ export const createDOM = (state) => {
             return;
         }
         elements = null;
-        highlightedIndex = -1;
         isInitialized = false;
     };
 
@@ -216,26 +178,12 @@ export const createDOM = (state) => {
         initialize,
         destroy,
         getElements,
-        
-        // Dropdown management
-        openDropdown,
-        closeDropdown,
-        isDropdownHovered,
-        isClickInside,
-
-        
-        // Display methods
         displaySuggestions,
         displayRecents,
+        openDropdown,
+        closeDropdown,
         updateLoadingState,
         updateSearchInput,
-
-        
-        // Keyboard navigation
-        blurInput,
-        navigateItems,
-        getHighlightedItem,
-        
         get isInitialized() {
             return isInitialized;
         }

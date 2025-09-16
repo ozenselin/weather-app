@@ -9,6 +9,7 @@ export const createEvents = (state, dom) => {
 
     let eventManager = null;
     let isInitialized = false;
+    let elements = null;
 
     // Event handlers for search functionality
     const handleSuggestionsChanged = (suggestions) => {
@@ -16,6 +17,7 @@ export const createEvents = (state, dom) => {
     };
 
     const handleRecentsChanged = (recents) => {
+        state.setRecents(recents);
         dom.displayRecents(recents);
     };
 
@@ -23,40 +25,31 @@ export const createEvents = (state, dom) => {
         dom.updateLoadingState(isLoading);
     };
 
-    const handleQueryChanged = (query) => {
-        dom.updateSearchInput(query);
-    };
-
     // Event handlers for API responses
     const handleSuggestionsStarted = (query) => {
-        console.log("location api fetch started");
         state.setLoading(true);
-        state.setLastSearchQuery(query);
     };
 
     const handleSuggestionsDelivered = (data) => {
         const { query, suggestions } = data;
-        if (query === state.getLastSearchQuery()) {
-            state.setSuggestions(suggestions);
-            state.setLoading(false);
-        }
+
+        state.setSuggestions(suggestions);
+        state.setLoading(false);
     };
 
     const handleSuggestionsFailed = (data) => {
         const { query, error } = data;
-        if (query === state.getLastSearchQuery()) {
-            state.clearSuggestions();
-            state.setLoading(false);
-            console.error("Search failed:", error);
-            eventBus.emit("search:error", error);
-        }
+        state.clearSuggestions();
+        state.setLoading(false);
+        console.error("Search failed:", error);
+        eventBus.emit("search:error", error);
     };
 
     // DOM event handlers
     const handleInputChange = (event) => {
         const query = event.target.value.trim();
-        state.setSearchQuery(query);
         eventBus.emit("location:suggestions-requested", query);
+        dom.displayRecents(state.getRecents());
     };
 
     const handleInputFocus = () => {
@@ -121,8 +114,8 @@ export const createEvents = (state, dom) => {
     };
 
     const handleClearButtonClick = () => {
-        console.log("clicked!!");
-        state.setSearchQuery("");
+        elements.input.value = ""; 
+        dom.displaySuggestions(); //clear suggestions
     }
 
     const handleDropdownOpened = () => {
@@ -162,24 +155,23 @@ export const createEvents = (state, dom) => {
                 eventBus.emit("location:change-requested", location);
             });
         } else {
-            console.log(target);
             const item = target.closest("[data-id]");
+            if(!item) return;
             const id = parseInt(item.getAttribute("data-id"));
 
             if (suggestionsList.contains(target) || recentsList.contains(target)) {
                 let location = state.getLocationById(id);
-                console.log("location:change-requested", location)
                 eventBus.emit("location:change-requested", location);
             }
         } 
         // Clear search
-        state.setSearchQuery("");
         state.clearSuggestions();
         dom.closeDropdown();
     }
 
-    const handleRecentsDelivered = (newRecents) => {
-        state.setRecents(newRecents)
+    const handleRecentsDelivery = (newRecents) => {
+        state.setRecents(newRecents);
+        dom.displayRecents(newRecents);
     }
 
     const setupEventListeners = () => {
@@ -188,13 +180,12 @@ export const createEvents = (state, dom) => {
         eventBus.on("location:suggestions-started", handleSuggestionsStarted);
         eventBus.on("location:suggestions-failed", handleSuggestionsFailed);
         eventBus.on("location:suggestions-delivered", handleSuggestionsDelivered);
-        eventBus.on("location:recents-delivered", handleRecentsDelivered);
+        eventBus.on("location:recents-changed", handleRecentsChanged);
+        eventBus.on("location:recents-delivered", handleRecentsDelivery);
         
         // Search internal events
-        eventBus.on("search:recents-changed", handleRecentsChanged);
         eventBus.on("search:suggestions-changed", handleSuggestionsChanged);
         eventBus.on("search:loading-changed", handleLoadingChanged);
-        eventBus.on("search:query-changed", handleQueryChanged);
         eventBus.on("dropdown:opened", handleDropdownOpened);
         eventBus.on("dropdown:closed", handleDropdownClosed);
 
@@ -220,10 +211,6 @@ export const createEvents = (state, dom) => {
 
     const removeEventListeners = () => {
         // Location service events
-        eventBus.off("location:recents-changed", handleRecentsChanged);
-        eventBus.off("location:api-fetch-started", handleApiFetchStarted);
-        eventBus.off("location:api-fetch-completed", handleApiFetchCompleted);
-        eventBus.off("location:api-fetch-failed", handleApiFetchFailed);
 
         // Search internal events
         eventBus.off("search:suggestions-changed", handleSuggestionsChanged);
@@ -251,8 +238,11 @@ export const createEvents = (state, dom) => {
     const initialize = () => {
         if (isInitialized) return;
 
+        elements = dom.getElements();
         eventManager = createEventManager();
         setupEventListeners();
+
+        eventBus.emit("location:recents-requested");
 
         isInitialized = true;
     };

@@ -11,8 +11,6 @@ export const createState = () => {
     let suggestions = null; // API search suggestions
     let recents = null; // API recents
     let isLoading = false;
-    let searchQuery = "";
-    let lastSearchQuery = "";
 
     const getSuggestions = () => {
         if (!suggestions) return [];
@@ -20,7 +18,6 @@ export const createState = () => {
     };
 
     const setSuggestions = (newSuggestions) => {
-        console.log("LOGGING SUGGESTIONS IN SERACH BAR STATE", suggestions);
         if (!newSuggestions) {
             suggestions = [];
             return;
@@ -52,7 +49,6 @@ export const createState = () => {
     };
 
     const setRecents = (newRecents) => {
-        console.log("LOGGING RECENTS IN SEARCH BAR STATE", recents);
         if (!newRecents) {
             recents = [];
             return;
@@ -79,11 +75,8 @@ export const createState = () => {
 
     const getLocationById = (itemId) => {
         let location = getSuggestionById(itemId);
-        console.log("getSuggestionById(itemId);", location);
         if(!location) {
             location = getRecentById(itemId);
-        console.log(" getRecentById(itemId);", location);
-
         }
         return location;
     }
@@ -98,31 +91,12 @@ export const createState = () => {
         return isLoading;
     };
 
-    const setSearchQuery = (query) => {
-        searchQuery = query || "";
-        eventBus.emit("search:query-changed", searchQuery);
-    };
-
-    const getSearchQuery = () => {
-        return searchQuery;
-    };
-
-    const setLastSearchQuery = (query) => {
-        lastSearchQuery = query || "";
-    };
-
-    const getLastSearchQuery = () => {
-        return lastSearchQuery;
-    };
-
     const initialize = () => {
         if (isInitialized) return;
 
         suggestions = [];
         recents = [];
         isLoading = false;
-        searchQuery = "";
-        lastSearchQuery = "";
 
         isInitialized = true;
     };
@@ -136,8 +110,6 @@ export const createState = () => {
         suggestions = null;
         recents = null;
         isLoading = false;
-        searchQuery = "";
-        lastSearchQuery = "";
         isInitialized = false;
     };
 
@@ -164,12 +136,6 @@ export const createState = () => {
         // loading state
         setLoading,
         getLoading,
-
-        // search query
-        setSearchQuery,
-        getSearchQuery,
-        setLastSearchQuery,
-        getLastSearchQuery,
 
         get isInitialized() {
             return isInitialized;
