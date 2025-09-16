@@ -1,0 +1,46 @@
+import {createDOM} from "./dom.js";
+import {createEvents} from "./events.js";
+import {createState} from "./state.js";
+
+export const createWeeklyForecast = () => {
+    let isInitialized = false;
+    let state = null;
+    let dom = null;
+    let events = null;
+
+    const initialize = () => {
+        if(isInitialized) return;
+
+        state = createState();
+        dom = createDOM(state);
+        events = createEvents(state, dom);
+
+        state.initialize();
+        dom.initialize();
+        events.initialize();
+
+        isInitialized = true;
+    }
+
+    const destroy = () => {
+        if(!isInitialized) console.log("Must call initialize() first!");
+
+        if(state?.destroy) state.destroy();
+        if(dom?.destroy) dom.destroy();
+        if(events?.destroy) events.destroy();
+
+        state = null;
+        dom = null;
+        events = null;
+
+        isInitialized = false;
+    }
+
+    return {
+        initialize,
+        destroy,
+        get isInitialized() {
+            return isInitialized;
+        }
+    }
+}
