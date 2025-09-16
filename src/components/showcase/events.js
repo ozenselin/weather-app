@@ -16,10 +16,26 @@ export const createEvents = (dom) => {
         dom.displayTheShowcase(state);
     }
 
+    const handleTemperatureUnitChange = () =>{
+        eventBus.emit("weather:forecast-requested", (state) => {
+            dom.displayTheShowcase(state);
+        });
+    }
+
+    const handleSpeedUnitChange = () =>{
+        eventBus.emit("weather:forecast-requested", (state) => {
+            dom.displayTheShowcase(state);
+        });
+    }
+
     const setupEventListeners = () => {
         //add event handlers for event bus (custom events)
-        eventBus.on("weather:state-changed", handleWeatherStateChange);
-        // eventBus.on("weather:current-hour-changed", handleHourChange);
+        eventBus.on("weather:day-changed", handleWeatherStateChange);
+        eventBus.on("weather:forecast-changed", handleWeatherStateChange);
+        eventBus.on("weather:hour-changed", handleWeatherStateChange);
+
+        eventBus.on("unit:temperature-changed", handleTemperatureUnitChange);
+        eventBus.on("unit:speed-changed", handleSpeedUnitChange);
     }
     
     const initialize = () => {

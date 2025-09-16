@@ -36,7 +36,6 @@ export const createDOM = () => {
     const displayTheShowcase = (state) => {
         if(!state) return;
         const {forecast, hourIndex, dayIndex} = state;
-        console.log("DISPLAYIN THE SHOWCASE IN SHOWCASE COMPONENT AND THE CURRENT STATE IS:", state);
 
         const daysData = forecast.days;
 
@@ -66,13 +65,9 @@ export const createDOM = () => {
             elements.time.textContent = getFormattedHourByIndex(hourIndex);
         }
 
-        console.log("CURRENT DATA TO DISPLAY AFTER IF ELSE STATEMENTS", currentData);
-
         //display current data nad day name
         const conditions = currentData.conditions.split(", ");
         const subtitle = getWeatherSubtitle(conditions);
-        console.log("conditions", conditions);
-        console.log("subtitle", subtitle);
         const title = conditions.at(0);
 
         //title, subtitle & description
@@ -97,7 +92,7 @@ export const createDOM = () => {
         elements.uv.textContent = currentData.uvindex;
 
         eventBus.emit("unit:display-speed-requested", {value: currentData.windspeed, element: elements.windValue})
-        eventBus.emit("unit:display-speed-unit-requested", {value: currentData.windspeed, element: elements.windUnit})
+        eventBus.emit("unit:display-speed-unit-requested", {element: elements.windUnit})
         // elements.windValue.textContent = unit == "F" ? currentData.windspeed : mphToKmh(currentData.windspeed);
         // elements.windUnit.textContent = unit == "F" ? "mph" : "km/h";
 
