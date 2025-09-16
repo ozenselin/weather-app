@@ -599,7 +599,7 @@ div:has(> svg), div:has(> img) {
     min-height: 8rem;
 }
 
-.charts-panel__canvas__btn--temp, .charts-panel__canvas__btn--hour {
+.charts-panel__canvas__btn--value, .charts-panel__canvas__btn--hour {
     position: absolute;
     transform: translate(-50%, -50%);
 }
