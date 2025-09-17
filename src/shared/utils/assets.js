@@ -1,11 +1,21 @@
-const baseIconUrl = "./assets/weather-icons/"
-export const getIconPath = (iconName) => {
-    if(!iconName) return;
-    return `${baseIconUrl}${iconName}.png`;
-}
+const icons = require.context("../../assets/weather-icons", false, /\.png$/);
 
-const baseBackgroundUrl = "./assets/backgrounds/"
+export const getIconPath = (iconName) => {
+  try {
+    return icons(`./${iconName}.png`);
+  } catch {
+    console.warn(`İkon bulunamadı: ${iconName}`);
+    return "";
+  }
+};
+
+const backgrounds = require.context("../../assets/backgrounds", false, /\.webp$/);
+
 export const getBackgroundPath = (iconName) => {
-    if(!iconName) return;
-    return `${baseBackgroundUrl}${iconName}.webp`;
-}
+  try {
+    return backgrounds(`./${iconName}.webp`);
+  } catch {
+    console.warn(`Background bulunamadı: ${iconName}`);
+    return "";
+  }
+};
