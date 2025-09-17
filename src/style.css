@@ -20,6 +20,9 @@ body {
     background-size: cover;
     background-repeat: no-repeat;
     color: rgb(247, 247, 237);
+}
+
+.page-wrapper {
     display: grid;
     grid-template-rows: 100px 1fr auto;
 }
@@ -385,7 +388,7 @@ div:has(> svg), div:has(> img) {
     grid-template-areas: 
         "weather-summary gap aside"
         "charts-panel charts-panel aside";
-    margin-bottom: 2rem;
+
 }
 
 .aside {
@@ -567,7 +570,6 @@ div:has(> svg), div:has(> img) {
 .charts-panel {
     grid-area: charts-panel;
     margin-right: 2.5rem;
-    margin-top: 1rem;
     margin-top: auto;
 }
 
@@ -647,8 +649,8 @@ div:has(> svg), div:has(> img) {
 }
 
 .forecast__list__item__icon-wrapper {
-    height: 3rem;
-    width: 3rem;
+    height: 3.5rem;
+    width: 3.5rem;
 }
 
 .forecast__list__item__btn {
@@ -658,7 +660,10 @@ div:has(> svg), div:has(> img) {
     align-items: center;
     justify-content: center;
     padding: .5rem;
+    gap: .25rem;
 }
+
+
 
 .forecast__list__item__name {
     font-size: 1rem;
@@ -739,6 +744,24 @@ div:has(> svg), div:has(> img) {
 .favourites__navigation__btn {
     display: flex;
     align-items: center;
+}
+
+@media (min-height: 53rem) {
+    .page-wrapper {
+        grid-template-rows: 150px 1fr auto;
+    }
+    .header {
+        margin-bottom: 25px; 
+    }
+
+    .forecast__list__item__btn {
+        padding: .5rem;
+    }
+
+    .forecast__list__item__icon-wrapper {
+        height: 4rem;
+        width: 4rem;
+    }
 }
 
 
