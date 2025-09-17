@@ -10,6 +10,9 @@ import { createUnitToggle } from "./components/unit-toggle/index.js";
 import { createFavouritesDisplay } from "./components/favourites-display/index.js";
 import { createFavouritesButton } from "./components/favourites-button/index.js";
 
+//import stylesheet
+import "./style.css";
+
 export const createApp = () => {
     let isInitialized = false;
     
