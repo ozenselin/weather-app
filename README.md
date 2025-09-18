@@ -1,7 +1,7 @@
 # Weather App
 
 A weather app built with plain JavaScript that shows how far the web platform can go without extra tools. 
-No frameworks, no clutter. Just **clear architecture**, **solid design choices**.
+No frameworks, no clutter. Just clear architecture and solid design choices.
 
 ## The Big Picture
 
@@ -104,9 +104,9 @@ Updates the interface, renders changes, and keeps the view fresh.
 
 ### Why This Pattern Works  
 
-**Clear separation of concerns**: each file has one job.  
-**Consistent lifecycle**: every part has setup and cleanup steps.  
-**Predictable dependencies**: services depend on state, events, and API, while modules depend on DOM and events.  
+- **Clear separation of concerns**: each file has one job.  
+- **Consistent lifecycle**: every part has setup and cleanup steps.  
+- **Predictable dependencies**: services depend on state, events, and API, while modules depend on DOM and events.  
 
 ## Installation
 
