@@ -164,6 +164,7 @@ div:has(> svg), div:has(> img) {
     padding: .75rem;
     min-width: max-content;
     max-width: 45ch;
+    z-index: 1;
     /* flex: 1 1 0; */
 }
 
@@ -226,6 +227,7 @@ div:has(> svg), div:has(> img) {
     overflow: hidden;
     transition: max-height 0.5s ease;
 }
+
 
 .header__controls__search-form__results-wrapper.is-open {
     min-height: max-content;
